@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const EsLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
   mode: "development",
@@ -14,6 +15,10 @@ module.exports = {
   devServer: {
     static: "./dist",
     port: 3007,
+    compress: true,
+    client: {
+      overlay: false,
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -21,6 +26,7 @@ module.exports = {
       template: "public/index.html",
     }),
     new MiniCssExtractPlugin(),
+    new EsLintPlugin(),
   ],
   resolve: {
     extensions: [".js"],
