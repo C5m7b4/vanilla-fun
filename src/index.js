@@ -1,4 +1,4 @@
 console.log("you are ready to start coding");
-import "./index.css";
+import { isValid } from "./utils";
 
-const myVar = 1;
+console.log(isValid({}));
