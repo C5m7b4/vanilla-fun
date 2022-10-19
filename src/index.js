@@ -8,13 +8,61 @@ console.log(isValid({}));
 let filteredData = data;
 
 const state = {
-  item: data,
+  items: data,
   currentItem: {
     name: "",
     size: "",
     price: 0,
     category: "",
   },
+};
+
+const getCheapestItem = () => {
+  return filteredData.reduce((acc, cur) => {
+    if (acc.price < cur.price) {
+      return acc;
+    } else {
+      return cur;
+    }
+  }, 9999);
+};
+
+const displayCheapest = () => {
+  const parent = document.getElementById("stats");
+  const divName = "cheapest-div";
+  const existing = document.getElementById(divName);
+  if (existing) {
+    parent.removeChild(existing);
+  }
+  const cheapest = getCheapestItem();
+  const div = document.createElement("div");
+  div.id = divName;
+  div.innerHTML = `The cheapest item is ${cheapest.name} and it is ${cheapest.price}`;
+  parent.appendChild(div);
+};
+
+const mostExpensive = () => {
+  return filteredData.reduce((acc, cur) => {
+    if (acc.price > cur.price) {
+      return acc;
+    } else {
+      return cur;
+    }
+  }, 0);
+};
+
+const displayExpensive = () => {
+  const parent = document.getElementById("stats");
+  const divName = "expensive-div";
+  const existing = document.getElementById(divName);
+  if (existing) {
+    parent.removeChild(existing);
+  }
+  const cheapest = mostExpensive();
+  const div = document.createElement("div");
+  div.id = divName;
+  div.innerHTML = `The most Expensive item is ${cheapest.name} and it is ${cheapest.price}`;
+  parent.appendChild(div);
 };
 
 const changeState = (element) => {
@@ -29,7 +77,6 @@ const changeState = (element) => {
       ...(state.currentItem[id] = value),
     },
   };
-  console.log(result);
   return result;
 };
 
@@ -40,7 +87,6 @@ const setValue = (id, value) => {
 };
 
 const inputs = document.getElementsByTagName("input");
-console.log(inputs);
 for (let input of inputs) {
   input.addEventListener("change", changeState);
 }
@@ -55,6 +101,8 @@ const buildTable = () => {
   });
   html += "</table>";
   document.getElementById("items").innerHTML = html;
+  displayCheapest();
+  displayExpensive();
 };
 buildTable();
 
@@ -62,7 +110,7 @@ Array.prototype.unique = function (field) {
   const newArray = [];
   this.forEach((record) => {
     const { [field]: targetField } = record;
-    if (!newArray.included(targetField)) {
+    if (!newArray.includes(targetField)) {
       newArray.push(targetField);
     }
   });
@@ -70,15 +118,74 @@ Array.prototype.unique = function (field) {
 };
 
 const filterData = (property) => {
+  console.log("filter data");
   return function (value) {
+    console.log("filter data return");
     return data.filter((i) => i[property] == value);
   };
 };
 
+const handleFilterChange = (e) => {
+  if (e.target.value == "0") {
+    filteredData = data;
+  } else {
+    filteredData = state.items.filter((d) => d.category == e.target.value);
+  }
+  buildTable();
+};
+
+const buildFilterBox = () => {
+  const categories = data.unique("category");
+  let html =
+    '<select id="category-filter"><option value="0">Select all category</option>';
+  categories.map((c) => {
+    html += `<option value="${c}">${c}</option>`;
+  });
+  html += "</select>";
+  document.getElementById("filter").innerHTML = html;
+  const newSelect = document.getElementById("category-filter");
+  newSelect.addEventListener("change", handleFilterChange);
+};
+buildFilterBox();
+
 const curriedFilter = filterData("category");
-const fruits = curriedFilter("fruit");
+// const fruits = curriedFilter("fruit");
 // console.log(fruits);
-const beverages = curriedFilter("beverages");
+// const beverages = curriedFilter("beverages");
 // console.log(beverages);
-const candy = curriedFilter("candy");
+// const candy = curriedFilter("candy");
 // console.log(candy);
+
+const findCategoryMostExpensive = (array) => {
+  console.log("findCategoryMostExpensive");
+  return array.reduce((acc, cur) => {
+    return acc.price > cur.price ? acc : cur;
+  }, 0);
+};
+
+const compose =
+  (...fns) =>
+  (...args) =>
+    fns.reduceRight((res, fn) => [fn.call(null, ...res)], args)[0];
+
+const pipedFn = compose(findCategoryMostExpensive, curriedFilter)("fruit");
+// console.log(pipedFn);
+
+const Box = (x) => ({
+  map: (f) => Box(f(x)),
+  inspect: `Box(${x})`,
+  fold: (f) => f(x),
+});
+
+const getFoodBetweenOneAndTwo = (data) =>
+  Box(data)
+    .map((x) => x.filter((f) => f.category == "beverages"))
+    .map((x) => x.filter((f) => f.price > 1))
+    .map((x) => x.filter((f) => f.price < 2))
+    .map((x) => x.map((f) => f.price))
+    .map((x) => x.map((f) => parseFloat(f)))
+    .map((x) => x.reduce((a, c) => a + c), 0)
+    .fold((x) => x);
+
+const result = getFoodBetweenOneAndTwo(data);
+console.log("result", result);
