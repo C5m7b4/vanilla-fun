@@ -17,6 +17,54 @@ const state = {
   },
 };
 
+const getCheapestItem = () => {
+  return filteredData.reduce((acc, cur) => {
+    if (acc.price < cur.price) {
+      return acc;
+    } else {
+      return cur;
+    }
+  }, 9999);
+};
+
+const displayCheapestItem = () => {
+  const parent = document.getElementById("stats");
+  const divName = "cheapest-div";
+  const existing = document.getElementById(divName);
+  if (existing) {
+    parent.removeChild(existing);
+  }
+  const cheapest = getCheapestItem();
+  const div = document.createElement("div");
+  div.id = divName;
+  div.innerHTML = `The cheapest item is ${cheapest.name} and it is ${cheapest.price}`;
+  parent.appendChild(div);
+};
+
+const mostExpensive = () => {
+  return filteredData.reduce((acc, cur) => {
+    if (acc.price > cur.price) {
+      return acc;
+    } else {
+      return cur;
+    }
+  }, 0);
+};
+
+const displayMostExpensive = () => {
+  const parent = document.getElementById("stats");
+  const divName = "most-expensive";
+  const existing = document.getElementById(divName);
+  if (existing) {
+    parent.removeChild(existing);
+  }
+  const highest = mostExpensive();
+  const div = document.createElement("div");
+  div.id = divName;
+  div.innerHTML = `The most expensive item is ${highest.name} and it is ${highest.price}`;
+  parent.appendChild(div);
+};
+
 const changeState = (element) => {
   const { id, value } = element.target;
   if (!isValid(value) || !isValid(id)) return;
@@ -65,6 +113,8 @@ const buildTable = () => {
   html += "</table>";
   document.getElementById("items").innerHTML = html;
   buildDeleteLinks();
+  displayMostExpensive();
+  displayCheapestItem();
 };
 buildTable();
 
@@ -126,3 +176,39 @@ const beverages = curriedFilter("beverages");
 // console.log(beverages);
 const candy = curriedFilter("candy");
 // console.log(candy);
+
+const findCategoryMostExpensiveItem = (array) => {
+  return array.reduce((acc, cur) => {
+    return acc.price > cur.price ? acc : cur;
+  }, 0);
+};
+
+const compose =
+  (...fns) =>
+  (...args) =>
+    fns.reduceRight((res, fn) => [fn.call(null, ...res)], args)[0];
+
+const pipedFn = compose(
+  findCategoryMostExpensiveItem,
+  curriedFilter
+)("beverages");
+console.log(pipedFn);
+
+const Box = (x) => ({
+  map: (f) => Box(f(x)),
+  inspect: `Box${x}`,
+  fold: (f) => f(x),
+});
+
+const getFoodBetweenOneAndTwo = (data) =>
+  Box(data)
+    .map((x) => x.filter((f) => f.category === "beverages"))
+    .map((x) => x.filter((f) => f.price > 1.0))
+    .map((x) => x.filter((f) => f.price <= 2.0))
+    .map((x) => x.map((f) => f.price))
+    .map((x) => x.map((f) => parseFloat(f)))
+    .map((x) => x.reduce((a, c) => a + c))
+    .fold((x) => x);
+
+const result = getFoodBetweenOneAndTwo(data);
+console.log(result);
