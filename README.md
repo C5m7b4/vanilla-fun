@@ -2,6 +2,8 @@
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/C5m7b4/vanilla-fun/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/C5m7b4/vanilla-fun/tree/master)
 ![GitHub](https://img.shields.io/github/license/C5m7b4/vanilla-fun?style=plastic)
+![GitHub repo size](https://img.shields.io/github/repo-size/C5m7b4/vanilla-fun?style=plastic)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/C5m7b4/vanilla-fun?style=plastic)
 
 [shields](https://shields.io/) = this has some pretty cool shields.
 
