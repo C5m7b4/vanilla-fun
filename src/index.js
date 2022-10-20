@@ -290,3 +290,16 @@ const getFoodBetweenOneAndTwo = (data) =>
 
 const result = getFoodBetweenOneAndTwo(data);
 console.log(result);
+
+const createItemCategory = () => {
+  const categories = data.unique("category");
+  let html = `<select id="category"><option value="0">Select a Category</option>`;
+  categories.map((c) => {
+    html += `<option value="${c}">${c}</option>`;
+  });
+  html += "</select>";
+  document.getElementById("item-category").innerHTML = html;
+  const newSelect = document.getElementById("category");
+  newSelect.addEventListener("change", changeState);
+};
+createItemCategory();
